@@ -1,0 +1,41 @@
+/**
+* AutoHotkey scripting language grammar.
+*
+* @author Boris Pronin
+*/
+
+{
+    parserClass="com.bopr.intellij.iiahk.parser.AhkParser"
+    extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+    psiClassPrefix="Ahk"
+    psiImplClassSuffix="Impl"
+    psiPackage="com.bopr.intellij.iiahk.psi"
+    psiImplPackage="com.bopr.intellij.iiahk.language.psi.impl"
+    elementTypeHolderClass="com.bopr.intellij.iiahk.language.psi.AhkTypes"
+    elementTypeClass="com.bopr.intellij.iiahk.language.psi.AhkElementType"
+    tokenTypeClass="com.bopr.intellij.iiahk.language.psi.AhkTokenType"
+
+    tokens=[
+        DECIMAL_INTEGER_NUMBER = 'regexp:\d+'
+        REAL_LITERAL_NUMBER ='regexp:\d+(\.\d*)?'
+        LINE_COMMENT ='regexp:;.*'
+    ]
+}
+
+root ::= element *
+private element ::= literal | comment | whitespace
+
+private whitespace ::= 'regexp:\s+'
+
+comment ::=
+    LINE_COMMENT
+
+private literal ::=
+    decimal-integer-literal
+  | real-literal
+
+decimal-integer-literal ::=
+    DECIMAL_INTEGER_NUMBER
+
+real-literal ::=
+    REAL_LITERAL_NUMBER

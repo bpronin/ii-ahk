@@ -1,0 +1,10 @@
+Ahk Script(0,17)
+  AhkDecimalIntegerLiteralImpl(DECIMAL_INTEGER_LITERAL)(0,3)
+    PsiElement(AhkTokenType.DECIMAL_INTEGER_NUMBER)('200')(0,3)
+  PsiWhiteSpace('\n')(3,4)
+  AhkRealLiteralImpl(REAL_LITERAL)(4,8)
+    PsiElement(AhkTokenType.REAL_LITERAL_NUMBER)('10.5')(4,8)
+  PsiWhiteSpace('\n')(8,9)
+  AhkCommentImpl(COMMENT)(9,17)
+    PsiElement(AhkTokenType.LINE_COMMENT)(';comment')(9,17)
+

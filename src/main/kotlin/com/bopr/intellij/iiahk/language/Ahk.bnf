@@ -2,40 +2,120 @@
 * AutoHotkey scripting language grammar.
 *
 * @author Boris Pronin
+* @see idea plugins source https://github.com/JetBrains/intellij-community/tree/idea/223.8617.56/plugins
 */
 
 {
+     generate = [
+        psi = 'no'
+    ]
+
     parserClass="com.bopr.intellij.iiahk.parser.AhkParser"
     extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
-    psiClassPrefix="Ahk"
-    psiImplClassSuffix="Impl"
     psiPackage="com.bopr.intellij.iiahk.psi"
     psiImplPackage="com.bopr.intellij.iiahk.language.psi.impl"
     elementTypeHolderClass="com.bopr.intellij.iiahk.language.psi.AhkTypes"
     elementTypeClass="com.bopr.intellij.iiahk.language.psi.AhkElementType"
     tokenTypeClass="com.bopr.intellij.iiahk.language.psi.AhkTokenType"
 
-    tokens=[
-        DECIMAL_INTEGER_NUMBER = 'regexp:\d+'
-        REAL_LITERAL_NUMBER ='regexp:\d+(\.\d*)?'
-        LINE_COMMENT ='regexp:;.*'
+    tokens = [
+        WHITE_SPACE = 'regexp:\s+'
+        LINE_COMMENT = 'regexp:;.*'
+
+        RETURN_KEYWORD = 'return'
+        IF_KEYWORD = 'if'
+        ELSE_KEYWORD = 'else'
+        WHILE_KEYWORD = 'while'
+        KEY = 'regexp:(Numpad[0-9])|[a-zA-Z0-9]'
+
+        HOT_TAIL = '::'
+        COLON = ':'
+        ASSIGNMENT_OPERATOR = ':='
+        LPARENTHESIS = '('
+        RPARENTHESIS = ')'
+        LBRACE = '{'
+        RBRACE = '}'
+
+        DIRECTIVE_IDENTIFIER = 'regexp:#\w+\s.*'
+        IDENTIFIER = 'regexp:\w+'
     ]
+
+    name('.*expression') = 'expression'
+    name('.*statement') = 'statement'
+    name('.*operator') = 'operator'
 }
 
-root ::= element *
-private element ::= literal | comment | whitespace
+root ::= element*
 
-private whitespace ::= 'regexp:\s+'
+element ::=
+    directive
+  | hot-string-statement
+  | hotkey-statement
+  | statement
 
-comment ::=
-    LINE_COMMENT
+key-name ::=
+    KEY
 
-private literal ::=
-    decimal-integer-literal
-  | real-literal
+hot-string ::=
+    (':' hot-string-option* ':' | '::') IDENTIFIER '::'
 
-decimal-integer-literal ::=
-    DECIMAL_INTEGER_NUMBER
+hot-string-option ::=
+    '*'|'?'|'b0'|'c'|'c1'|'kn'|'o'|'pn'|'r'|'si'|'sp'|'se'|'t'|'x'|'z'
 
-real-literal ::=
-    REAL_LITERAL_NUMBER
+hotkey ::=
+    key-modifiers key-combo '::'
+
+key-modifiers ::=
+    '#'|'!'|'^'|'+'
+
+key-combo ::=
+    key-name ('&' key-name)*
+
+directive ::=
+    DIRECTIVE_IDENTIFIER
+
+statement ::=
+    'return'
+  | if-statement
+  | while-statement
+  | assignment-expression
+  | expression
+
+statement-block ::=
+    '{' statement* '}'
+
+hotkey-statement ::=
+    hotkey+ (key-name | statement*) 'return'?
+
+hot-string-statement ::=
+    hot-string statement* 'return'?
+
+condition ::=
+    '(' expression ')' | expression
+
+if-statement ::=
+    'if' condition statement-block else-if-clause* else-clause*
+
+else-if-clause ::=
+    'else' 'if' condition statement-block
+
+else-clause ::=
+    'else' statement-block
+
+while-statement ::=
+    'while' condition statement-block
+
+expression ::=
+    primary-expression
+
+scope ::=
+    'local'|'global'
+
+assignment-expression ::=
+    scope? expression ':=' statement
+
+primary-expression ::=
+    value
+
+value ::=
+    'regexp:\w+'

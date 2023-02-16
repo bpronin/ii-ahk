@@ -1,3 +1,5 @@
-200
-10.5
+$global_variable
+
+;200
+;10.5
 ;comment

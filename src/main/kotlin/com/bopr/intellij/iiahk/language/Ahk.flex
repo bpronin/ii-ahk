@@ -10,9 +10,9 @@ import static com.bopr.intellij.iiahk.language.psi.AhkTypes.*;
 %%
 
 %{
-  public AhkLexer() {
-    this((java.io.Reader)null);
-  }
+    public AhkLexer() {
+        this((java.io.Reader)null);
+    }
 %}
 
 %public
@@ -21,20 +21,22 @@ import static com.bopr.intellij.iiahk.language.psi.AhkTypes.*;
 %function advance
 %type IElementType
 %unicode
+%caseless
+%ignorecase
 
-EOL=\R
-WHITE_SPACE=\s+
-DECIMAL_INTEGER_NUMBER=[0-9]+
-REAL_LITERAL_NUMBER=[0-9]+(\.[0-9]*)?
-LINE_COMMENT=;.*
+NEW_LINE = [\r\n]
+WHITE_SPACE = \s+
+LINE_COMMENT = ";" .*
+PREPROCESSOR = "#" .*
+//BLOCK_COMMENT= "/*" [^]  "/*"
 
 %%
 
 <YYINITIAL> {
-  {WHITE_SPACE}                 { return WHITE_SPACE; }
-  {DECIMAL_INTEGER_NUMBER}      { return DECIMAL_INTEGER_NUMBER; }
-  {REAL_LITERAL_NUMBER}         { return REAL_LITERAL_NUMBER; }
-  {LINE_COMMENT}                { return LINE_COMMENT; }
+    {NEW_LINE}                      { return NEW_LINE; }
+    {PREPROCESSOR}                  { return PREPROCESSOR; }
+    {WHITE_SPACE}                   { return WHITE_SPACE; }
+    {LINE_COMMENT}                  { return LINE_COMMENT; }
 }
 
 [^] { return BAD_CHARACTER; }

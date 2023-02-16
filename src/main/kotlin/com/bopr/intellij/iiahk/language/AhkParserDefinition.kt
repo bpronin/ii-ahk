@@ -1,7 +1,7 @@
 package com.bopr.intellij.iiahk.language
 
 import com.bopr.intellij.iiahk.language.psi.AhkFile
-import com.bopr.intellij.iiahk.language.psi.AhkTypes
+import com.bopr.intellij.iiahk.language.psi.AkrPsiElement
 import com.bopr.intellij.iiahk.parser.AhkParser
 import com.intellij.lang.ASTNode
 import com.intellij.lang.ParserDefinition
@@ -37,7 +37,7 @@ class AhkParserDefinition : ParserDefinition {
     }
 
     override fun createElement(node: ASTNode): PsiElement {
-        return AhkTypes.Factory.createElement(node)
+        return AkrPsiElement(node)
     }
 
     override fun createFile(viewProvider: FileViewProvider): PsiFile {

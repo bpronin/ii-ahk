@@ -1,0 +1,188 @@
+/**
+* AutoHotkey scripting language grammar.
+*
+* @author Boris Pronin
+* @see idea plugins source https://github.com/JetBrains/intellij-community/tree/idea/223.8617.56/plugins
+*/
+
+{
+     generate = [
+        psi = 'no'
+    ]
+
+    parserClass="com.bopr.intellij.iiahk.parser.AhkParser"
+    extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+    psiPackage="com.bopr.intellij.iiahk.psi"
+    psiImplPackage="com.bopr.intellij.iiahk.language.psi.impl"
+    elementTypeHolderClass="com.bopr.intellij.iiahk.language.psi.AhkTypes"
+    elementTypeClass="com.bopr.intellij.iiahk.language.psi.AhkElementType"
+    tokenTypeClass="com.bopr.intellij.iiahk.language.psi.AhkTokenType"
+
+    tokens = [
+//        ANY_TEXT = 'any text'
+        WHITE_SPACE = 'regexp:\s+'
+
+        LINE_COMMENT = 'regexp:;.*'
+        BLOCK_COMMENT = 'regexp:/\*(.|\n|/\*)*\*/'
+
+        KEYWORD = 'regexp:return|if|else|while|global|static'
+        KEY = 'regexp:VK[0-9a-fA-F][0-9a-fA-F]'
+        BUILT_IN_VARIABLE = 'regexp:A_Clipboard|Clipboard|ErrorLevel'
+        BUILT_IN_CONSTANT =  'regexp:A_Space|A_Tab'
+        BUILD_IN_COMMAND = 'regexp:AutoTrim|BlockInput|Break|Catch|Click|ClipWait'
+        BUILD_IN_FUNCTION = 'regexp:Abs|Asc|ASin|ACos|ATan|Ceil|Chr'
+
+        OPERATOR = 'regexp:::|:=|&|='
+        DOT = '.'
+        COMMA = ','
+        SEMICOLON = ';'
+        LPARENTHESIS = '('
+        RPARENTHESIS = ')'
+        LBRACKET = '['
+        RBRACKET = ']'
+        LBRACE = '{'
+        RBRACE = '}'
+
+        STRING = 'regexp:"([^"]|"")*"'
+        DECIMAL_INTEGER_NUMBER = 'regexp:[+-]?\d+'
+        HEXADECIMAL_INTEGER_NUMBER = 'regexp:[+-]?0x[0-9a-fA-F]+'
+        FLOAT_NUMBER = 'regexp:[+-]?\d*\.\d+([eE][+-]?\d+)?'
+        PREPROCESSOR_DIRECTIVE = 'regexp:#\w+'
+        COMPILER_DIRECTIVE = 'regexp:@Ahk2Exe-\w+'
+        IDENTIFIER = 'regexp:\w+'
+    ]
+
+    name('.*directive-statement') = 'directive'
+    name('.*statement') = 'statement'
+    name('.*expression') = 'expression'
+    name('.*operator') = 'operator'
+}
+
+root ::= element*
+
+element ::=
+    directive-statement
+  | comment
+  | hotkey-statement
+  | hot-string-statement
+  | label
+  | statement
+
+statement ::=
+    if-statement
+  | while-statement
+  | assignment-expression
+  | command
+  | expression
+
+statement-block ::=
+    '{' statement* '}'
+
+comment ::=
+    LINE_COMMENT | BLOCK_COMMENT
+
+label ::=
+    IDENTIFIER ':'
+
+hot-string ::=
+    (':' hot-string-option-constant* ':' | '::') IDENTIFIER '::'
+
+hot-string-option-constant ::=
+    '*'|'?'|'b0'|'c'|'c1'|'kn'|'o'|'pn'|'r'|'si'|'sp'|'se'|'t'|'x'|'z'
+
+hotkey ::=
+    key-modifier* key-combo '::'
+
+key-modifier ::=
+    '#'|'!'|'^'|'+'
+
+key-combo ::=
+    KEY ('&' KEY)*
+
+directive-statement ::=
+    preprocessor-directive-statement
+  | compiler-directive-statement
+
+preprocessor-directive-statement ::=
+    PREPROCESSOR_DIRECTIVE //ANY_TEXT
+
+compiler-directive-statement ::=
+    ';' COMPILER_DIRECTIVE
+  | '/*' COMPILER_DIRECTIVE '*/'
+
+hotkey-statement ::=
+    hotkey+ (KEY | statement*) 'return'?
+
+hot-string-statement ::=
+    hot-string statement* 'return'?
+
+condition ::=
+    '(' expression ')' | expression
+
+if-statement ::=
+    'if' condition statement-block else-if-clause* else-clause*
+
+else-if-clause ::=
+    'else' 'if' condition statement-block
+
+else-clause ::=
+    'else' statement-block
+
+while-statement ::=
+    'while' condition statement-block
+
+expression ::=
+    function-call-expression
+  | primary-expression
+
+scope ::=
+    'global' | 'static'
+
+assignment-operator ::=
+    ':=' | '='
+
+assignment-expression ::=
+    scope? variable assignment-operator statement
+
+primary-expression ::=
+    value
+
+value ::=
+   literal
+ | constant
+ | variable
+
+literal ::=
+   number-literal
+ | string-literal
+
+number-literal ::=
+    DECIMAL_INTEGER_NUMBER | HEXADECIMAL_INTEGER_NUMBER | FLOAT_NUMBER
+
+string-literal ::=
+    STRING
+
+variable ::=
+   BUILT_IN_VARIABLE | IDENTIFIER
+
+constant ::=
+   BUILT_IN_CONSTANT
+
+command ::=
+    command-name ','? arguments?
+
+command-name ::=
+    BUILD_IN_COMMAND | IDENTIFIER
+
+function-call-expression ::=
+    function-name '(' arguments? ')'
+
+function-name ::=
+    BUILD_IN_FUNCTION | IDENTIFIER
+
+arguments ::=
+    argument (',' argument)*
+
+argument ::=
+    primary-expression
+

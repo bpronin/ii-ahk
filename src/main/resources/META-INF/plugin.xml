@@ -39,6 +39,10 @@
                 language="Ahk"
                 implementationClass="com.bopr.intellij.iiahk.language.AhkParserDefinition"/>
 
+        <lang.syntaxHighlighterFactory
+                language="Ahk"
+                implementationClass="com.bopr.intellij.iiahk.ui.AhkSyntaxHighlighterFactory"/>
+        
     </extensions>
 
 </idea-plugin>
